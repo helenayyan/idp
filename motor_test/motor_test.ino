@@ -15,30 +15,27 @@ void setup() {
   // Set the speed to start, from 30 (off) to 255 (max speed)
   myMotor1->setSpeed(50);
   myMotor2->setSpeed(52);
-    // turn on motor
   myMotor1->run(FORWARD);
   myMotor2->run(FORWARD);
-    // turn off motor
+  // turn on motor
   myMotor1->run(RELEASE);
   myMotor2->run(RELEASE);
 }
 
 void loop() {
   Serial.print("Hello World");
-  // or int?
   uint8_t i;
   
   Serial.print("tick");
-
+  //test motor forward
   myMotor1->run(FORWARD);
   myMotor2->run(FORWARD);
-  //Accelerating test
+  
   for (i=0; i<200; i++) {
     myMotor1->setSpeed(i);  
     myMotor2->setSpeed(i+2);
     delay(10);
   }
-  //Decelerating test
   for (i=200; i!=0; i--) {
     myMotor1->setSpeed(i); 
     myMotor2->setSpeed(i+2); 
@@ -46,7 +43,7 @@ void loop() {
   }
   
   Serial.print("tock");
-
+  //test motor backward
   myMotor1->run(BACKWARD);
   myMotor2->run(BACKWARD);
   for (i=0; i<200; i++) {
@@ -59,7 +56,19 @@ void loop() {
     myMotor1->setSpeed(i+2);    
     delay(10);
   }
+  //test turning to the right
+  Serial.print("clockwise");
+  myMotor1->setSpeed(50);
+  myMotor2->setSpeed(52); 
+  myMotor1->run(FORWARD);
+  myMotor2->run(RELEASE);
 
+  //test turning to the left
+  Serial.print("anticlockwise");
+  myMotor1->run(RELEASE);
+  myMotor2->run(FORWARD);
+  
+  //Stop
   Serial.print("tech");
   myMotor1->run(RELEASE);
   myMotor2->run(RELEASE);
