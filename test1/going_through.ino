@@ -31,53 +31,48 @@ void loop() {
   
   Serial.print("tick");
   //test motor forward
-  myMotor1->setSpeed(50);
-  myMotor2->setSpeed(52);
   myMotor1->run(FORWARD);
   myMotor2->run(FORWARD);
   
-  for (i=0; i<100; i++) {
+  for (i=0; i<200; i++) {
     myMotor1->setSpeed(i);  
     myMotor2->setSpeed(i+2);
     delay(10);
   }
-  for (i=100; i!=0; i--) {
-    myMotor1->setSpeed(i); 
-    myMotor2->setSpeed(i+2); 
-    delay(10);
-  }
-  
-  Serial.print("tock");
-  //test motor backward
-  myMotor1->run(BACKWARD);
-  myMotor2->run(BACKWARD);
-  for (i=0; i<100; i++) {
+delay(4500);
+
+  for (i=200; i>0; i=i-5) {
     myMotor1->setSpeed(i);
     myMotor2->setSpeed(i+2); 
     delay(10);  }
-    delay(5000);
-  for (i=100; i!=0; i--) {
-    myMotor1->setSpeed(i);
-    myMotor1->setSpeed(i+2);    
-    delay(10);
-  }
-  myMotor1->run(RELEASE);
-  myMotor2->run(RELEASE);
-  delay(5000);
+    delay(3000);
+    
+
+
   //test turning to the right
   Serial.print("clockwise");
   myMotor1->setSpeed(50);
   myMotor2->setSpeed(52); 
   myMotor1->run(FORWARD);
-  myMotor2->run(RELEASE);
-  delay(5000);
-  //test turning to the left
-  Serial.print("anticlockwise");
-  myMotor1->run(RELEASE);
-  myMotor2->run(FORWARD);
-  delay(5000);
-  //Stop
+  myMotor2->run(BACKWARD);
+  delay(6300);
+
   Serial.print("tech");
   myMotor1->run(RELEASE);
   myMotor2->run(RELEASE);
-  delay(1000);}
+  delay(1000);
+  
+
+  myMotor1->run(FORWARD);
+  myMotor2->run(FORWARD);
+  
+  for (i=0; i<200; i=I+5) {
+    myMotor1->setSpeed(i);  
+    myMotor2->setSpeed(i+1);
+    delay(10);
+  }
+delay(10000);
+  myMotor1->run(RELEASE);
+  myMotor2->run(RELEASE);
+
+  }

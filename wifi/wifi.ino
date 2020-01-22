@@ -1,8 +1,8 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 
-char ssid[] = "Yuxuan's iPhone";        // your network name
-char pass[] = "66666666";    // your wifi password 
+char ssid[32] = "Yuxuan's iPhone";        // your network name
+char pass[32] = "66666666";    // your wifi password 
 int status = WL_IDLE_STATUS;     // Wifi initial status
 
 void setup() {
