@@ -11,41 +11,31 @@ void setup() {
   Serial.println("Adafruit Motorshield v2 - DC Motor test!");
   AFMS.begin();
   
-  // Set the speed to start, from 30 (off) to 255 (max speed)
-
-  //myMotor1->run(FORWARD);
-  //myMotor2->run(FORWARD);
-  // turn on motor
-  //myMotor1->run(RELEASE);
-  //myMotor2->run(RELEASE);
 }
 
 void loop() {
-//    int state;
+  int state = 1;
 //  if (Serial.available()>0){
 //    state = Serial.read();}
-//  
-//  if (int state == 1){
-//  Serial.print("Hello World");
+  
+  if (bool (state == 1)){
+  Serial.print("Hello World");
   int i;
   
-  Serial.print("tick");
+  Serial.println("tick");
   //test motor forward
   myMotor1->run(FORWARD);
   myMotor2->run(FORWARD);
   
-  for (i=0; i<200; i++) {
-    myMotor1->setSpeed(i);  
-    myMotor2->setSpeed(i+2);
-    delay(10);
-  }
-delay(4500);
 
-  for (i=200; i>0; i=i-5) {
-    myMotor1->setSpeed(i);
-    myMotor2->setSpeed(i+2); 
-    delay(10);  }
-    delay(3000);
+  myMotor1->setSpeed(200);  
+  myMotor2->setSpeed(202);
+
+  delay(5800);
+
+  myMotor1->setSpeed(0);  
+  myMotor2->setSpeed(0);
+  delay(3000);
     
 
 
@@ -66,13 +56,12 @@ delay(4500);
   myMotor1->run(FORWARD);
   myMotor2->run(FORWARD);
   
-  for (i=0; i<200; i=I+5) {
-    myMotor1->setSpeed(i);  
-    myMotor2->setSpeed(i+1);
-    delay(10);
-  }
-delay(10000);
+  myMotor1->setSpeed(200);  
+  myMotor2->setSpeed(202);
+  
+  delay(6786);
   myMotor1->run(RELEASE);
   myMotor2->run(RELEASE);
-
-  }
+  state = 0;
+  delay(50000);
+  }}
