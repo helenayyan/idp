@@ -14,7 +14,6 @@ void loop() {
   Adafruit_DCMotor *left = AFMS.getMotor(1);
   Adafruit_DCMotor *right = AFMS.getMotor(2);
   
-  
   char state = '0';
   while (Serial.available()>0){
   state = Serial.read();
@@ -75,10 +74,20 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
     anticlockwise_90(left,right);
   }
 
-  adjust_wall(left, right); //not sure?? //move towards the upper edge of the wall
+  int distance = reliable_ultra_sonic_reading();
+
+  //move towards the upper edge of the wall
+  forward(left, right, distance);
+  adjust_wall(left, right); 
   anticlockwise_90(left,right);
-  adjust_wall(left, right);  //move towards side edge
-  backward(left, right, 120); //move back to mid line
+
+  //move towards side edge
+  distance = reliable_ultra_sonic_reading();
+  forward(left, right, distance);
+  adjust_wall(left, right);  
+
+  //move back to mid line
+  backward(left, right, 120); 
   anticlockwise_90(left,right); //facing tunnel
   forward(left, right, 89);
 }
@@ -121,7 +130,7 @@ int ultra_sonic() {
  }
 
 void adjust_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
-  int ave_distance = reliable_ultra_sonic_reading()
+  int ave_distance = reliable_ultra_sonic_reading();
   while (ave_distance>20) {
     forward_slowly(left,right);
     ave_distance = reliable_ultra_sonic_reading();
@@ -209,22 +218,48 @@ void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   delay(2000);
 }
 
+int find_max(int a[]) {
+  //find the maximum index in the array length of 5
+  int max_num = a[0];
+  for (int i = 0; i < 5; i++) {
+    if (a[i] > max_num) {
+      max_num = a[i];
+    }
+  }
+  return max_num;
+}
 
-int reliable_ultra_sonic_reading(){
-  bool reliable = true;
-  array distance[5] = {0,0,0,0,0};
+int find_min(int a[]) {
+  //find the minimum index in the array length of 5
+  int min_num = a[0];
+  for (int i = 0; i < 5; i++) {
+    if (a[i] < min_num) {
+      min_num = a[i];
+    }
+  }
+  return min_num;
+}
+
+int reliable_ultra_sonic_reading() {
+  //take average of the 5 readings from ultrasonic sensor
+  bool irreliable = true;
+  int distance[5] = {0,0,0,0,0};
   //reading average distance from ultrasonic sensor
-  while (reliable){
-  for (int i=0;i<5;i++){
-    distance[i] = ultra_sonic();
-    max_dist = max(distance);
-    min_dist = min(distance);
-    diff = max_dist - min_dist;
-    if (diff <20){
-      reliable = false}
-    int sum_distance = 0
-    for (int i=0;i<5;i++)
-    {sum_distance +=distance[i];}
+  while (irreliable){
+    for (int i=0;i<5;i++) {
+      distance[i] = ultra_sonic();
+      int max_dist = find_max(distance);
+      int min_dist = find_min(distance);
+      int diff = max_dist - min_dist;
+      if (diff <20) {
+        irreliable = false;
+      }
+    int sum_distance = 0;
+    for (int i=0;i<5;i++){
+      sum_distance +=distance[i];
+    }
     int ave_distance = sum_distance/5;
     return ave_distance;
-     }
+    }
+  }
+}
