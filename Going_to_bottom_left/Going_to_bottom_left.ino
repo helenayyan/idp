@@ -3,11 +3,9 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
-
   
 void setup() {
   Serial.begin(9600);
-  
 }
 
 void loop() { 
@@ -21,8 +19,42 @@ void loop() {
   while (Serial.available()>0){
   state = Serial.read();
   }
+
+  int direction_count = 0; //mark the direction facing to
+  int victim_num = 0; //number of victims saved
   
   if (state == '1'){
+    through_tunnel(left, right); //entering the tunnel
+    direction_count += 1;
+    
+    //Move towards the wall --- could start searching from this point
+    forward(left,right,89);
+    adjust_wall(left,right);
+  
+    //Turn left
+    anticlockwise_90(left,right);
+    direction_count -= 1;
+    
+    //Move towards the wall
+    forward(left,right,115);
+    adjust_wall(left,right);
+  
+    //Turn left
+    anticlockwise_90(left,right);
+    direction_count -=1;
+    
+    //Move to the bottom left
+    forward(left,right,150);
+
+    //Turn left
+    anticlockwise_90(left, right);
+    direction_count -= 1;
+    }
+  }
+
+
+void through_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+  //from starting point - go into tunnel
   //Move to the tunnel entrance
   forward(left,right,100);
   
@@ -31,30 +63,48 @@ void loop() {
   
   //Move through tunnel to the mark-up point
   forward(left,right,117);
-  
-  //Move towards the wall
-  forward(left,right,89);
-  adjust_wall(left,right);
-  
-  
-  //Turn left
-  anticlockwise_90(left,right);
-  
-  //Move towards the wall
-  forward(left,right,115);
-  adjust_wall(left,right);
-  
-  //Turn left
-  anticlockwise_90(left,right);
-  
-  //Move to the bottom left
-  forward(left,right,150);
-  }
+}
+
+
+void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int direction_count) {
+  //from any location back to the mark point of the tunnel after picking up a victim
+  direction_count %= 4;
+  int turns = (direction_count - 1) % 4; //times of turning anticlockwise_90 needed to face the upper edge
+
+  for (int i=0; i<turns; i++) {
+    anticlockwise_90(left,right);
   }
 
+  adjust_wall(left, right); //not sure?? //move towards the upper edge of the wall
+  anticlockwise_90(left,right);
+  adjust_wall(left, right);  //move towards side edge
+  backward(left, right, 120); //move back to mid line
+  anticlockwise_90(left,right); //facing tunnel
+  forward(left, right, 89);
+}
 
 
-int ultra_sonic(){
+void tunnel_to_red_zone(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+  //from mark point back through the tunnel to drop victim
+  forward(left, right, 95);
+
+  clockwise_90(left, right);
+
+  forward(left, right, 70);
+}
+
+
+void red_to_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+  //back into the cave after drop the victim
+  backward(left, right, 70);
+
+  clockwise_90(left, right);
+
+  forward(left, right, 95);
+}
+
+
+int ultra_sonic() {
   int sensorPin = A0;    // select the input pin for the potentiometer
   pinMode(9, OUTPUT);
   int sensorValue = 0;  // variable to store the value coming from the sensor 
@@ -66,34 +116,39 @@ int ultra_sonic(){
   pulse = pulseIn(sensorPin, HIGH); //Read pulse width from low to high to low
   sensorValue =  pulse / 58 ; // Divide by factor given by sensor data sheet
   delay(100);
+  
   return sensorValue;
-  }
+ }
 
-void adjust_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right){
+void adjust_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+  //to check the distance towards the wall
   int distance = 0;
+  //reading average distance from ultrasonic sensor
   for (int i=0;i<5;i++){
-    distance +=ultra_sonic();}
-
+    distance += ultra_sonic();
+  }
   distance /=5;
-  while (distance>20){
+  
+  while (distance>20) {
     forward_slowly(left,right);
     int distance = 0;
-    for (int i=0;i<5;i++){
-    distance +=ultra_sonic();}
+    for (int i=0;i<5;i++) {
+    distance += ultra_sonic();}
     distance /=5;
-    }
+  }
     
-
-  while (distance<10){
+  while (distance<10) {
     backward_slowly(left,right);
     int distance = 0;
     for (int i=0;i<5;i++){
     distance +=ultra_sonic();}
     distance /=5;
-    } 
-    }
+  } 
+ }
+
     
 void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){
+  //move forward with speed 200
   float wait_time;
   wait_time = (distance/1.724);
   left->run(FORWARD);
@@ -104,9 +159,10 @@ void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
-  }
+}
 
 void forward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
+  //move forward with speed 50
   left->run(FORWARD);
   right->run(FORWARD);
   left->setSpeed(30);  
@@ -114,9 +170,10 @@ void forward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
   delay(100);
   left->run(RELEASE);
   right->run(RELEASE);
-  }
+}
 
 void backward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
+  //move backward with speed 50
   left->run(BACKWARD);
   right->run(BACKWARD);
   left->setSpeed(50);  
@@ -124,9 +181,10 @@ void backward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
   delay(100);
   left->run(RELEASE);
   right->run(RELEASE);
-  }
+}
 
 void backward(Adafruit_DCMotor *left,Adafruit_DCMotor *right,int distance){
+  //move backward with speed 200
   float wait_time;
   wait_time = (distance/1.724);
   left->run(BACKWARD);
@@ -137,10 +195,10 @@ void backward(Adafruit_DCMotor *left,Adafruit_DCMotor *right,int distance){
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
-  }
+}
 
-
-void clockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right){
+void clockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+  //turn clockwise 90 degrees
   left->run(FORWARD);
   right->run(BACKWARD);
   left->setSpeed(50);
@@ -149,10 +207,11 @@ void clockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right){
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
-  }
+}
 
 
-void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right){
+void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+  //turn anticlockwise 90 degrees
   left->run(BACKWARD);
   right->run(FORWARD);
   left->setSpeed(50);
@@ -161,4 +220,4 @@ void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right){
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
-  }
+}
