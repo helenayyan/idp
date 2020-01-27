@@ -121,29 +121,16 @@ int ultra_sonic() {
  }
 
 void adjust_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
-  //to check the distance towards the wall
-  int distance = 0;
-  //reading average distance from ultrasonic sensor
-  for (int i=0;i<5;i++){
-    distance += ultra_sonic();
-  }
-  distance /=5;
-  
-  while (distance>20) {
+  int ave_distance = reliable_ultra_sonic_reading()
+  while (ave_distance>20) {
     forward_slowly(left,right);
-    int distance = 0;
-    for (int i=0;i<5;i++) {
-    distance += ultra_sonic();}
-    distance /=5;
+    ave_distance = reliable_ultra_sonic_reading();
   }
     
-  while (distance<10) {
+  while (ave_distance<20) {
     backward_slowly(left,right);
-    int distance = 0;
-    for (int i=0;i<5;i++){
-    distance +=ultra_sonic();}
-    distance /=5;
-  } 
+    ave_distance = reliable_ultra_sonic_reading();
+  }
  }
 
     
@@ -221,3 +208,23 @@ void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   right->run(RELEASE);
   delay(2000);
 }
+
+
+int reliable_ultra_sonic_reading(){
+  bool reliable = true;
+  array distance[5] = {0,0,0,0,0};
+  //reading average distance from ultrasonic sensor
+  while (reliable){
+  for (int i=0;i<5;i++){
+    distance[i] = ultra_sonic();
+    max_dist = max(distance);
+    min_dist = min(distance);
+    diff = max_dist - min_dist;
+    if (diff <20){
+      reliable = false}
+    int sum_distance = 0
+    for (int i=0;i<5;i++)
+    {sum_distance +=distance[i];}
+    int ave_distance = sum_distance/5;
+    return ave_distance;
+     }
