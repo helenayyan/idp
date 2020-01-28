@@ -3,7 +3,9 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
-  
+const int front_ultrasonic_pin = 9;
+const int side_ultrasonic_pin = 0; //
+
 void setup() {
   Serial.begin(9600);
 }
@@ -72,14 +74,14 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
     anticlockwise_90(left,right);
   }
 
-  int distance = reliable_ultra_sonic_reading();
+  int distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   //move towards the upper edge of the wall
   forward(left, right, distance);
   adjust_wall(left, right); 
   anticlockwise_90(left,right);
 
   //move towards side edge
-  distance = reliable_ultra_sonic_reading();
+  distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   forward(left, right, distance);
   adjust_wall(left, right);  
 
@@ -107,32 +109,16 @@ void red_to_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   forward(left, right, 95);
 }
 
-int ultra_sonic() {
-  int sensorPin = A0;    // select the input pin for the potentiometer
-  pinMode(9, OUTPUT);
-  int sensorValue = 0;  // variable to store the value coming from the sensor 
-  unsigned long pulse;
-  
-  digitalWrite(9, HIGH); //send pulse 10us long to trigger sensor
-  delay(0.01);
-  digitalWrite(9, LOW);
-  pulse = pulseIn(sensorPin, HIGH); //Read pulse width from low to high to low
-  sensorValue =  pulse / 58 ; // Divide by factor given by sensor data sheet
-  delay(100);
-  
-  return sensorValue;
- }
-
 void adjust_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
-  int ave_distance = reliable_ultra_sonic_reading();
+  int ave_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   while (ave_distance>20) {
     forward_slowly(left,right);
-    ave_distance = reliable_ultra_sonic_reading();
+    ave_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   }
     
   while (ave_distance<20) {
     backward_slowly(left,right);
-    ave_distance = reliable_ultra_sonic_reading();
+    ave_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   }
  }
     
@@ -150,29 +136,60 @@ void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){
   delay(2000);
 }
 
-void forward_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right, bool victim_health) {
-  //forward moving while detecting the victim
+bool forward_till_obstacle(Adafruit_DCMotor *left, Adafruit_DCMotor *right) {
+  //forward moving while detecting obstacle either victim or wall
   bool no_obstacle = true;
-  int distance = reliable_ultra_sonic_reading();
+  int distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   if (distance < 10) {
     no_obstacle = false;
     left->run(RELEASE);
     right->run(RELEASE);
     delay(2000);
+    return true;
   }
   while (no_obstacle) {
     left->run(FORWARD);
     right->run(FORWARD);
-    left->setSpeed(200);  
-    right->setSpeed(202);
-    distance = reliable_ultra_sonic_reading();
+    left->setSpeed(50);  
+    right->setSpeed(52);
+    distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
     if (distance < 10) {
       no_obstacle = false;
       left->run(RELEASE);
       right->run(RELEASE);
       delay(2000);
+      return true;
     }
   }
+  return false;
+}
+
+bool side_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right) {
+  //search along the upper edge of the wall using side distance sensor
+  bool no_obstacle = true;
+  int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin);
+  if (distance < 140) {
+    no_obstacle = false;
+    left->run(RELEASE);
+    right->run(RELEASE);
+    delay(2000);
+    return true;
+  }
+  while (no_obstacle) {
+    left->run(FORWARD);
+    right->run(FORWARD);
+    left->setSpeed(50);  
+    right->setSpeed(52);
+    distance = reliable_ultra_sonic_reading(side_ultrasonic_pin);
+    if (distance < 140) {
+      no_obstacle = false;
+      left->run(RELEASE);
+      right->run(RELEASE);
+      delay(2000);
+      return true;
+    }
+  }
+  return false;
 }
 
 void forward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
@@ -257,14 +274,30 @@ int find_min(int a[]) {
   return min_num;
 }
 
-int reliable_ultra_sonic_reading() {
+int ultra_sonic(int pin_num) {
+  int sensorPin = A0;    // select the input pin for the potentiometer
+  pinMode(pin_num, OUTPUT);
+  int sensorValue = 0;  // variable to store the value coming from the sensor 
+  unsigned long pulse;
+  
+  digitalWrite(pin_num, HIGH); //send pulse 10us long to trigger sensor
+  delay(0.01);
+  digitalWrite(pin_num, LOW);
+  pulse = pulseIn(sensorPin, HIGH); //Read pulse width from low to high to low
+  sensorValue =  pulse / 58 ; // Divide by factor given by sensor data sheet
+  delay(100);
+  
+  return sensorValue;
+ }
+ 
+int reliable_ultra_sonic_reading(int pin_num) {
   //take average of the 5 readings from ultrasonic sensor
   bool irreliable = true;
   int distance[5] = {0,0,0,0,0};
   //reading average distance from ultrasonic sensor
   while (irreliable){
     for (int i=0;i<5;i++) {
-      distance[i] = ultra_sonic();
+      distance[i] = ultra_sonic(pin_num);
       int max_dist = find_max(distance);
       int min_dist = find_min(distance);
       int diff = max_dist - min_dist;
