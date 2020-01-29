@@ -2,24 +2,28 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
-
 const int front_ultrasonic_pin = 9;
-const int side_ultrasonic_pin = 0; //
+const int side_ultrasonic_pin = 0;
+const int buttonPin = 3;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(buttonPin, INPUT);
 }
 
-void loop() { 
+void loop() {
+  char state = '0'; 
+  int buttonState = 0;
+  buttonState = digitalRead(buttonPin);
+
+  if (buttonState == HIGH) {
+    state = '1';
+  }
   Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
   AFMS.begin();
   Adafruit_DCMotor *left = AFMS.getMotor(1);
   Adafruit_DCMotor *right = AFMS.getMotor(2);
-  
-  char state = '0';
-  while (Serial.available()>0){
-  state = Serial.read();
-  }
+
 
   int direction_count = 0; //mark the direction facing to
   int victim_num = 0; //number of victims saved
@@ -76,6 +80,7 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
 
   int distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   //move towards the upper edge of the wall
+  //Need to face upper wall
   forward(left, right, distance);
   adjust_wall(left, right); 
   anticlockwise_90(left,right);
@@ -152,6 +157,9 @@ bool forward_till_obstacle(Adafruit_DCMotor *left, Adafruit_DCMotor *right) {
     right->run(FORWARD);
     left->setSpeed(50);  
     right->setSpeed(52);
+    delay(2000);
+    left->run(RELEASE);
+    right->run(RELEASE);
     distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
     if (distance < 10) {
       no_obstacle = false;
@@ -180,6 +188,9 @@ bool side_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right) {
     right->run(FORWARD);
     left->setSpeed(50);  
     right->setSpeed(52);
+    delay(2000);
+    left->run(RELEASE);
+    right->run(RELEASE);
     distance = reliable_ultra_sonic_reading(side_ultrasonic_pin);
     if (distance < 140) {
       no_obstacle = false;
@@ -292,6 +303,7 @@ int ultra_sonic(int pin_num) {
  
 int reliable_ultra_sonic_reading(int pin_num) {
   //take average of the 5 readings from ultrasonic sensor
+  
   bool irreliable = true;
   int distance[5] = {0,0,0,0,0};
   //reading average distance from ultrasonic sensor
