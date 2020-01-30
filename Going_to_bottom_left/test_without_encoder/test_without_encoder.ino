@@ -29,7 +29,8 @@ void loop() {
     direction_count += 1;
     
     //Move towards the wall --- could start searching from this point
-    forward_till_obstacle(left,right);
+    int distance1 = reliable_ultra_sonic_reading(front_ultrasonic_pin);
+    forward(left,right, distance1);
 
     //add in side loops
     adjust_wall(left,right);
@@ -43,6 +44,8 @@ void loop() {
     if (side_obstacle) {
       anticlockwise_90(left, right);
     }
+    int distance2 = reliable_ultra_sonic_reading(front_ultrasonic_pin);
+    forward(left,right, distance2);
   }
  }
 
