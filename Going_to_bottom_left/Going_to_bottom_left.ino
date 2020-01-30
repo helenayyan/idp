@@ -136,7 +136,7 @@ void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){ //do
   right->run(FORWARD);
   left->setSpeed(new_speed);  
   right->setSpeed(202);
-  new_speed = adjust_velocity(int new_speed);
+  new_speed = adjust_velocity(new_speed);
   distance_covered = find_distance_encoder_A1() - initial_distance;
   }
 }
@@ -150,7 +150,7 @@ void forward_till_obstacle(Adafruit_DCMotor *left, Adafruit_DCMotor *right) { //
     right->run(FORWARD);
     left->setSpeed(new_speed);  
     right->setSpeed(52);
-    new_speed = adjust_velocity(int new_speed);
+    new_speed = adjust_velocity(new_speed);
     distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   }
   left->run(RELEASE);
@@ -170,7 +170,7 @@ bool side_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right) { //done
     right->setSpeed(52);
     side_distance = reliable_ultra_sonic_reading(side_ultrasonic_pin);
     front_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
-    new_speed = adjust_velocity(int new_speed);
+    new_speed = adjust_velocity(new_speed);
   }
   if (side_distance < 140) {
     return true;
@@ -212,7 +212,7 @@ void backward(Adafruit_DCMotor *left,Adafruit_DCMotor *right,int distance){ //do
   right->run(BACKWARD);
   left->setSpeed(new_speed);  
   right->setSpeed(202);
-  new_speed = adjust_velocity(int new_speed);
+  new_speed = adjust_velocity(new_speed);
   distance_covered = find_distance_encoder_A1() - initial_distance;
   }
 }
@@ -412,8 +412,8 @@ double find_velocity_encoder_A2(){ //done
 }
 
 int adjust_velocity(int left_speed){ //done
-  double velocity1 = find_velocity_encoder_A1;
-  double velocity2 = find_velocity_encoder_A2;
+  double velocity1 = find_velocity_encoder_A1();
+  double velocity2 = find_velocity_encoder_A2();
   double difference = velocity1 - velocity2;
   if (difference<-0.01){
     left_speed+=1;
