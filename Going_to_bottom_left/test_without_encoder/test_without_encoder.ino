@@ -22,7 +22,7 @@ void loop() {
   int direction_count = 0; //mark the direction facing to
   int victim_num = 0; //number of victims saved
   
-  if (buttonState == HIGH){
+  if (true){
     Serial.println("start");
     delay(1000);
     red_to_tunnel(left, right); //entering the tunnel
@@ -96,9 +96,9 @@ void tunnel_to_red_zone(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
 
 void red_to_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   //back into the cave after drop the victim
-  forward(left, right, 70);
+  backward(left, right, 70);
 
-  anticlockwise_90(left, right);
+  clockwise_90(left, right);
 
   forward(left, right, 95);
 }
@@ -124,7 +124,7 @@ void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){
   right->run(FORWARD);
   left->setSpeed(200);  
   right->setSpeed(202);
-  delay(wait_time);
+  delay(wait_time *100);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
@@ -195,7 +195,7 @@ void backward(Adafruit_DCMotor *left,Adafruit_DCMotor *right,int distance){
   right->run(BACKWARD);
   left->setSpeed(200);  
   right->setSpeed(202);
-  delay(wait_time);
+  delay(wait_time *100);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
@@ -207,7 +207,7 @@ void clockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   right->run(BACKWARD);
   left->setSpeed(50);
   right->setSpeed(52); 
-  delay(6300);
+  delay(6400);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
