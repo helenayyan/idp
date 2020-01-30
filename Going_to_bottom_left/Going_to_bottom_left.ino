@@ -13,16 +13,10 @@ void setup() {
 }
 
 void loop() {
-  char state = '0'; 
   int buttonState = 0;
   buttonState = digitalRead(buttonPin);
 
-  if (buttonState == HIGH) {
-    state = '1';
-  }
-
-  
-  if (state == '1'){
+  if (buttonState == HIGH){
     Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
     AFMS.begin();
     Adafruit_DCMotor *left = AFMS.getMotor(1);
@@ -31,6 +25,7 @@ void loop() {
     int direction_count = 0;   //mark the direction facing to
     int victim_num = 0;   //number of victims saved
     Serial.println("start");
+    
     through_tunnel(left, right); //entering the tunnel
     direction_count += 1;
     
@@ -49,10 +44,6 @@ void loop() {
     }
   }
  }
-
-
-
-
 
 
 
@@ -163,7 +154,7 @@ bool side_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right) { //done
   int side_distance = reliable_ultra_sonic_reading(side_ultrasonic_pin);
   int front_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   int new_speed = 50;
-  while (side_distance >140 & front_distance > 10) {
+  while (side_distance >140 && front_distance > 10) {
     left->run(FORWARD);
     right->run(FORWARD);
     left->setSpeed(new_speed);  
@@ -315,6 +306,7 @@ int reliable_ultra_sonic_reading(int pin_num) { //done
 
 
 double find_distance_encoder_A1(){ //done
+    //left motor encoder
     int encoderPin = A1;
     static int old_value_sensor = 0; //stores old value of sensor reading
     static int count_encoder = 0; //total count
@@ -323,30 +315,24 @@ double find_distance_encoder_A1(){ //done
     float arc_length = 0.4433; //arc length at radius of wheel in cm (with 72 segments at radius 5.08cm, arc length = 5*(2*pi/72))
 
     int sensorValue = analogRead(encoderPin);  // variable to store the value coming from the sensor
-    if (sensorValue >= th_high and old_value_sensor < th_high){
+    if (sensorValue >= th_high and old_value_sensor < th_high) {
         //checks that old_value is below the higher threshold and that the new value is above the threshold, indicating the sensor has gone from black to white
         count_encoder ++;
         old_value_sensor = sensorValue; //sets old_value to the current sensor value ready for the next loop
     }
-
-
-    else if (sensorValue <= th_low and count_encoder == 0){
+    else if (sensorValue <= th_low and count_encoder == 0) {
         //checks that the old_value is above the lower threshold and that the new value is below the threshold, indicating the sensor has gone from white to black
         count_encoder ++;
         old_value_sensor = sensorValue; //sets old_value to the current sensor value ready for the next loop
     }
-
-    else if (sensorValue <= th_low and old_value_sensor > th_low){
+    else if (sensorValue <= th_low and old_value_sensor > th_low) {
         //checks that the old_value is above the lower threshold and that the new value is below the threshold, indicating the sensor has gone from white to black
         count_encoder ++;
         old_value_sensor = sensorValue; //sets old_value to the current sensor value ready for the next loop
     }
-
-
-    double distance = arc_length*count_encoder;
+    double distance = arc_length * count_encoder;
 
     return distance;
-
 }
 
 
@@ -364,62 +350,60 @@ double find_distance_encoder_A2(){ //done
         count_encoder ++;
         old_value_sensor = sensorValue; //sets old_value to the current sensor value ready for the next loop
     }
-
-
     else if (sensorValue <= th_low and count_encoder == 0){
         //checks that the old_value is above the lower threshold and that the new value is below the threshold, indicating the sensor has gone from white to black
         count_encoder ++;
         old_value_sensor = sensorValue; //sets old_value to the current sensor value ready for the next loop
     }
-
     else if (sensorValue <= th_low and old_value_sensor > th_low){
         //checks that the old_value is above the lower threshold and that the new value is below the threshold, indicating the sensor has gone from white to black
         count_encoder ++;
         old_value_sensor = sensorValue; //sets old_value to the current sensor value ready for the next loop
     }
 
-
     double distance = arc_length*count_encoder;
 
     return distance;
-
 }
 
 
 double find_velocity_encoder_A1(){ //done
+  //return the velocity of the left wheel
+  double distance1 = find_distance_encoder_A1();
+  int time1 = millis();
+  delay(100);
+  
+  double distance2 = find_distance_encoder_A1();
+  int time2 = millis();
+  double velocity = (distance2-distance1)/(time2-time1);
+  velocity *= 10;
 
-    double distance1 = find_distance_encoder_A1();
-    int time1 = millis();
-    delay(100);
-    double distance2 = find_distance_encoder_A1();
-    int time2 = millis();
-    double velocity = (distance2-distance1)/(time2-time1);
-    velocity *=10;
-
-    return velocity;
+  return velocity;
 }
 
 double find_velocity_encoder_A2(){ //done
-
-    double distance1 = find_distance_encoder_A2();
-    int time1 = millis();
-    delay(100);
-    double distance2 = find_distance_encoder_A2();
-    int time2 = millis();
-    double velocity = (distance2-distance1)/(time2-time1);
-    velocity *=10;
-    return velocity;
+  //return the velocity of the right wheel
+  double distance1 = find_distance_encoder_A2();
+  int time1 = millis();
+  delay(100);
+  
+  double distance2 = find_distance_encoder_A2();
+  int time2 = millis();
+  double velocity = (distance2-distance1)/(time2-time1);
+  velocity *= 10;
+  return velocity;
 }
 
 int adjust_velocity(int left_speed){ //done
+  //make the robot go straight by adjusting the left wheel
   double velocity1 = find_velocity_encoder_A1();
   double velocity2 = find_velocity_encoder_A2();
   double difference = velocity1 - velocity2;
   if (difference<-0.01){
-    left_speed+=1;
-    }
-  else if (difference>0.01){
-    left_speed-=1;
-    }
-  return left_speed;
+    left_speed += 1;
   }
+  else if (difference > 0.01){
+    left_speed -= 1;
+  }
+  return left_speed;
+}
