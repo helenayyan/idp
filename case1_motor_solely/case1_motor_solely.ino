@@ -11,7 +11,6 @@ void setup() {
   Serial.begin(9600);
   pinMode(buttonPin, INPUT);
 
-  
   }
 
 void loop() {
@@ -19,15 +18,16 @@ void loop() {
   AFMS.begin();
   Adafruit_DCMotor *left = AFMS.getMotor(1);
   Adafruit_DCMotor *right = AFMS.getMotor(2);
-
   through_tunnel(left, right);
- 
+  left->run(RELEASE);
+  right->run(RELEASE);
+  delay(20000);
 }
 
 void through_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) { //done
   //from starting point - go into tunnel
   //Move to the tunnel entrance
-  forward(left,right,100);
+  forward(left,right,96);
   
   //Facing the tunnel
   clockwise_90(left,right);
@@ -37,14 +37,19 @@ void through_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) { //done
 }
 
 
-
 void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){
   float wait_time;
-  wait_time = (distance/1.724);
+  int i;
   left->run(FORWARD);
   right->run(FORWARD);
+  for (i=0; i<200; i++) {
+    left->setSpeed(i);
+    right->setSpeed(i);  
+    delay(10);
+  }
+  wait_time = (distance/1.89);
   left->setSpeed(200);  
-  right->setSpeed(202);
+  right->setSpeed(200);
   delay(wait_time*100);
   left->run(RELEASE);
   right->run(RELEASE);
@@ -56,7 +61,7 @@ void clockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right){
   right->run(BACKWARD);
   left->setSpeed(50);
   right->setSpeed(52); 
-  delay(6300);
+  delay(6790);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
