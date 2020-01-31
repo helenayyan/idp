@@ -18,12 +18,6 @@ void loop() {
   AFMS.begin();
   Adafruit_DCMotor *left = AFMS.getMotor(1);
   Adafruit_DCMotor *right = AFMS.getMotor(2);
-  int buttonState = 0;
-  buttonState = digitalRead(buttonPin);
-
-  if (buttonState == HIGH){
-
-
     int direction_count = 0;   //mark the direction facing to
     int victim_num = 0;   //number of victims saved
     Serial.println("start");
@@ -39,13 +33,7 @@ void loop() {
     anticlockwise_90(left,right);
     direction_count -= 1;
 
-    //start searching along the edge
-    bool side_obstacle = side_search(left, right);
-    if (side_obstacle) {
-      anticlockwise_90(left, right);
-    }
   }
- }
 
 
 
