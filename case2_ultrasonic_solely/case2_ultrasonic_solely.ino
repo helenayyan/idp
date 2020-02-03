@@ -2,32 +2,28 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
-const int front_ultrasonic_pin = 9;
-const int side_ultrasonic_pin = 0;
-const int buttonPin = 3;
+const int front_ultrasonic_pin = 6;
+const int side_sensorPin = A3;
+const int side_ultrasonic_pin = 7;
+const int front_sensorPin = A2;
 //Shall we let the robot to detect distance right after leaving the tunnel if less than a threshold(distance to wall) no obstacle
 
 void setup() {
   Serial.begin(9600);
-  pinMode(buttonPin, INPUT);
   
   }
-
-
   
 void loop() {
   
-  double value1 = ultra_sonic(9);
-  //double value1 = reliable_ultra_sonic_reading(9);
+  double value1 = ultra_sonic(front_ultrasonic_pin);
+  //double value1 = reliable_ultra_sonic_reading(front_ultrasonic_pin);
   Serial.println(value1);
-
 
 }
 
 
-
 int ultra_sonic(int pin_num) { //done
-  int sensorPin = A0;    // select the input pin for the potentiometer
+  int sensorPin = A2;    // select the input pin for the potentiometer
   pinMode(pin_num, OUTPUT);
   int sensorValue = 0;  // variable to store the value coming from the sensor 
   unsigned long pulse;
@@ -38,7 +34,6 @@ int ultra_sonic(int pin_num) { //done
   pulse = pulseIn(sensorPin, HIGH); //Read pulse width from low to high to low
   sensorValue =  pulse / 58 ; // Divide by factor given by sensor data sheet
   delay(100);
-  
   return sensorValue;
  }
 
