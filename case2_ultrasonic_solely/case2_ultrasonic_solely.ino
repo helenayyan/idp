@@ -10,8 +10,8 @@ const int front_sensorPin = A2;
 
 void setup() {
   Serial.begin(9600);
-  
   }
+
   
 void loop() {
   

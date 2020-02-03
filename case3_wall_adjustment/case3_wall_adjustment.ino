@@ -2,6 +2,10 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
+const int front_ultrasonic_pin = 6;
+const int side_sensorPin = A3;
+const int side_ultrasonic_pin = 7;
+const int front_sensorPin = A2;
 
   
 void setup() {
@@ -23,11 +27,12 @@ void loop() {
   int victim_num = 0; //number of victims saved
   
   if (state == '1'){
+    delay(2000);
     through_tunnel(left, right); //entering the tunnel
     direction_count += 1;
-    
+    delay(2000);
     //Move towards the wall --- could start searching from this point
-    forward(left,right,89);
+    forward(left,right,85);
     adjust_wall(left,right);
   
     //Turn left
@@ -35,18 +40,18 @@ void loop() {
     direction_count -= 1;
     
     //Move towards the wall
-    forward(left,right,115);
+    forward(left,right,110);
     adjust_wall(left,right);
-  
 
+    back_to_mark_point(left, right, direction_count);
     }
   }
 
 
-void through_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
+void through_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) { //done
   //from starting point - go into tunnel
   //Move to the tunnel entrance
-  forward(left,right,100);
+  forward(left,right,96);
   
   //Facing the tunnel
   clockwise_90(left,right);
@@ -65,7 +70,7 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
     anticlockwise_90(left,right);
   }
 
-  int distance = reliable_ultra_sonic_reading();
+  int distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
 
   //move towards the upper edge of the wall
   forward(left, right, distance);
@@ -73,8 +78,8 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
   anticlockwise_90(left,right);
 
   //move towards side edge
-  distance = reliable_ultra_sonic_reading();
-  forward(left, right, distance);
+  distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
+  forward(left, right, distance-5);
   adjust_wall(left, right);  
 
   //move back to mid line
@@ -104,49 +109,54 @@ void red_to_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
 }
 
 
-int ultra_sonic() {
-  int sensorPin = A0;    // select the input pin for the potentiometer
-  pinMode(9, OUTPUT);
+int ultra_sonic(int pin_num, int sensorPin) { //done
+  // select the input pin for the potentiometer
+  pinMode(pin_num, OUTPUT);
   int sensorValue = 0;  // variable to store the value coming from the sensor 
   unsigned long pulse;
   
-  digitalWrite(9, HIGH); //send pulse 10us long to trigger sensor
+  digitalWrite(pin_num, HIGH); //send pulse 10us long to trigger sensor
   delay(0.01);
-  digitalWrite(9, LOW);
+  digitalWrite(pin_num, LOW);
   pulse = pulseIn(sensorPin, HIGH); //Read pulse width from low to high to low
   sensorValue =  pulse / 58 ; // Divide by factor given by sensor data sheet
   delay(100);
-  
   return sensorValue;
  }
 
+
 void adjust_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
-  int ave_distance = reliable_ultra_sonic_reading();
+  int ave_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
   while (ave_distance>20) {
     forward_slowly(left,right);
-    ave_distance = reliable_ultra_sonic_reading();
+    ave_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
   }
     
   while (ave_distance<20) {
     backward_slowly(left,right);
-    ave_distance = reliable_ultra_sonic_reading();
+    ave_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
   }
  }
 
     
 void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right,int distance){
-  //move forward with speed 200
   float wait_time;
-  wait_time = (distance/1.724);
+  int i;
   left->run(FORWARD);
   right->run(FORWARD);
+  for (i=0; i<200; i++) {
+    left->setSpeed(i);
+    right->setSpeed(i);  
+    delay(10);
+  }
+  wait_time = (distance/1.89);
   left->setSpeed(200);  
-  right->setSpeed(202);
+  right->setSpeed(200);
   delay(wait_time*100);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
-}
+ }
 
 void forward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
   //move forward with speed 50
@@ -173,12 +183,18 @@ void backward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right){
 void backward(Adafruit_DCMotor *left,Adafruit_DCMotor *right,int distance){
   //move backward with speed 200
   float wait_time;
-  wait_time = (distance/1.724);
+  int i;
   left->run(BACKWARD);
   right->run(BACKWARD);
+  for (i=0; i<200; i++) {
+    left->setSpeed(i);
+    right->setSpeed(i);  
+    delay(10);
+  }
+  wait_time = (distance/1.89);
   left->setSpeed(200);  
-  right->setSpeed(202);
-  delay(wait_time);
+  right->setSpeed(200);
+  delay(wait_time*100);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
@@ -190,7 +206,7 @@ void clockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   right->run(BACKWARD);
   left->setSpeed(50);
   right->setSpeed(52); 
-  delay(6300);
+  delay(6790);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
@@ -203,7 +219,7 @@ void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   right->run(FORWARD);
   left->setSpeed(50);
   right->setSpeed(52); 
-  delay(6300);
+  delay(6790);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);
@@ -231,14 +247,15 @@ int find_min(int a[]) {
   return min_num;
 }
 
-int reliable_ultra_sonic_reading() {
+int reliable_ultra_sonic_reading(int pin_num, int sensorPin) { //done
   //take average of the 5 readings from ultrasonic sensor
+  
   bool irreliable = true;
   int distance[5] = {0,0,0,0,0};
   //reading average distance from ultrasonic sensor
   while (irreliable){
     for (int i=0;i<5;i++) {
-      distance[i] = ultra_sonic();
+      distance[i] = ultra_sonic(pin_num, sensorPin);
       int max_dist = find_max(distance);
       int min_dist = find_min(distance);
       int diff = max_dist - min_dist;
