@@ -20,8 +20,8 @@ void loop() {
   Adafruit_DCMotor *right = AFMS.getMotor(2);
   
   delay(2000);
+
   back_to_mark_point(left, right, 0);
-  
   }
 
 
@@ -41,7 +41,7 @@ void through_tunnel(Adafruit_DCMotor *left,Adafruit_DCMotor *right) { //done
 void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int direction_count) {
   //from any location back to the mark point of the tunnel after picking up a victim
   direction_count %= 4;
-  int turns = (direction_count - 1) % 4; //times of turning anticlockwise_90 needed to face the upper edge
+  int turns = (direction_count +3 ) % 4; //times of turning anticlockwise_90 needed to face the upper edge
 
   for (int i=0; i<turns; i++) {
     anticlockwise_90(left,right);
@@ -56,10 +56,10 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
 
   //move towards side edge
   distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
-  forward(left, right, 50); 
+  forward(left, right, 30); 
   delay(1000);
   //move back to mid line
-  backward(left, right, 110); 
+  backward(left, right, 105); 
   anticlockwise_90(left,right); //facing tunnel
   forward(left, right, 89);
 }
@@ -196,7 +196,7 @@ void anticlockwise_90(Adafruit_DCMotor *left,Adafruit_DCMotor *right) {
   right->run(FORWARD);
   left->setSpeed(50);
   right->setSpeed(52); 
-  delay(6790);
+  delay(7100);
   left->run(RELEASE);
   right->run(RELEASE);
   delay(2000);

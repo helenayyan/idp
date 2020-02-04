@@ -17,6 +17,7 @@ void loop() {
   AFMS.begin();
   Adafruit_DCMotor *left = AFMS.getMotor(1);
   Adafruit_DCMotor *right = AFMS.getMotor(2);
+  Adafruit_DCMotor *front = AFMS.getMotor(3);//Possibly not working due to wire
   
   char state = '1';
   while (Serial.available()>0){
@@ -40,19 +41,21 @@ void loop() {
       delay(5000);
       }
     else {
-      forward(left,right,90);
-      backward(left,right,5);
-      anticlockwise_90(left,right);
-      forward(left,right,10);
+//      forward(left,right,90);
+//      backward(left,right,5);
+//      anticlockwise_90(left,right);
+//      direction_count -= 1;
+//      forward(left,right,10);
       delay(3000);
       bool side_search_result = side_search(left,right);
       if (side_search_result == true){
         anticlockwise_90(left,right);
+        direction_count -= 1;
         forward_till_obstacle(left,right);
         delay(5000);
+        gripper_down(front);
         
         }
-      
       
       }
     
@@ -286,19 +289,18 @@ int reliable_ultra_sonic_reading(int pin_num, int sensorPin) { //done
 }
 
 
-
 bool side_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right) { //done
   //search along the upper edge of the wall using side distance sensor
   int side_distance = reliable_ultra_sonic_reading(side_ultrasonic_pin,side_sensorPin);
   int front_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
-  while (side_distance >140) {
+  while (side_distance >= 80) {
     left->run(FORWARD);
     right->run(FORWARD);
     left->setSpeed(50);  
     right->setSpeed(52);
     side_distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
   }
-  if (side_distance < 100) {
+  if (side_distance < 80) {
     return true;
   }
   else {
@@ -322,3 +324,23 @@ void forward_till_obstacle(Adafruit_DCMotor *left, Adafruit_DCMotor *right) { //
   right->run(RELEASE);
   delay(2000);
 }
+
+
+
+void gripper_up(Adafruit_DCMotor *front){
+  front->run(BACKWARD);
+  front->setSpeed(200);  
+  delay(3000);
+  front->run(RELEASE);
+  delay(5000);
+  }
+
+
+
+void gripper_down(Adafruit_DCMotor *front){
+  front->run(FORWARD);
+  front->setSpeed(200);
+  delay(4000);
+  front->run(RELEASE);
+  delay(5000);
+  }
