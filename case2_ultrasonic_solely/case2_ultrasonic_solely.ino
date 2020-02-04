@@ -21,6 +21,7 @@ void loop() {
 
 }
 
+// 73 88
 
 int ultra_sonic(int pin_num, int sensorPin) { //done
   // select the input pin for the potentiometer
