@@ -21,7 +21,7 @@ void loop() {
 
 
 
-    int direction_count = 0;   //mark the direction facing to
+  int direction_count = 0;   //mark the direction facing to
     int victim_num = 0;   //number of victims saved
     Serial.println("start");
     
