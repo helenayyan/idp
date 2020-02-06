@@ -1,0 +1,52 @@
+10:54:52.951 -> Start point to wall
+10:54:52.987 -> 74
+10:55:10.976 -> middle line to side wall: 
+10:55:10.976 -> 111
+10:55:22.656 -> Before bypass tunnel: 
+10:55:22.693 -> 132
+10:55:27.443 -> After bypass tunnel: 
+10:55:27.476 -> 132
+10:55:28.521 -> Side distance without victim: 
+10:55:28.521 -> 128
+10:55:29.037 -> Side distance without victim: 
+10:55:29.072 -> 125
+10:55:29.606 -> Side distance without victim: 
+10:55:29.643 -> 123
+10:55:30.138 -> Side distance without victim: 
+10:55:30.172 -> 122
+10:55:30.666 -> Side distance without victim: 
+10:55:30.700 -> 120
+10:55:31.234 -> Side distance without victim: 
+10:55:31.234 -> 122
+10:55:31.770 -> Side distance without victim: 
+10:55:31.803 -> 122
+10:55:32.299 -> Side distance without victim: 
+10:55:32.338 -> 122
+10:55:32.834 -> Side distance without victim: 
+10:55:32.870 -> 121
+10:55:33.386 -> Side distance without victim: 
+10:55:33.419 -> 120
+10:55:33.927 -> Side distance without victim: 
+10:55:33.960 -> 121
+10:55:34.455 -> Side distance without victim: 
+10:55:34.488 -> 121
+10:55:35.012 -> Side distance without victim: 
+10:55:35.048 -> 120
+10:55:35.543 -> Side distance without victim: 
+10:55:35.580 -> 120
+10:55:36.111 -> Side distance without victim: 
+10:55:36.145 -> 120
+10:55:36.638 -> Side distance without victim: 
+10:55:36.675 -> 121
+10:55:37.197 -> Side distance without victim: 
+10:55:37.197 -> 122
+10:55:37.730 -> Side distance without victim: 
+10:55:37.768 -> 122
+10:55:38.261 -> Side distance without victim: 
+10:55:38.297 -> 124
+10:55:38.829 -> Side distance without victim: 
+10:55:38.829 -> 124
+10:55:39.352 -> Side distance without victim: 
+10:55:39.386 -> 95
+10:55:40.387 -> Distance when found victim at side
+10:55:40.423 -> 44

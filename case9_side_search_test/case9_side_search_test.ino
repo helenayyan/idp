@@ -34,7 +34,7 @@ void loop() {
     //75
     direction_count += 1;
     //Move towards the wall --- could start searching from this point
-    if (distance < 60){
+    if (distance < 70){
       delay(3000);
       forward(left,right,distance-20);
       delay(5000);
@@ -43,8 +43,9 @@ void loop() {
       forward(left,right,80);
       //backward_wall(left, right, some distance) //not sure if needed, need to test the sensor searching area
       distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin); //check if any victims close to wall
-      if (distance < 100){ // parameter to be adjusted by reading when wall !!!
+      if (distance < 105){ // parameter to be adjusted by reading when wall !!!
         backward_wall(left, right, 3);
+        anticlockwise_
         forward(left, right, distance-20);
       }
       else{

@@ -15,8 +15,8 @@ void setup() {
   
 void loop() {
   
-  double value1 = ultra_sonic(front_ultrasonic_pin, front_sensorPin);
-  //double value1 = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
+  //double value1 = ultra_sonic(front_ultrasonic_pin, front_sensorPin);
+  double value1 = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
   Serial.println(value1);
 
 }
@@ -40,7 +40,7 @@ int ultra_sonic(int pin_num, int sensorPin) { //done
 
 
 
-int reliable_ultra_sonic_reading(int pin_num, int sensorPin) { //done
+int reliable_ultra_sonic_reading(int pin_num, int sensorPin) {
   //take average of the 5 readings from ultrasonic sensor
   
   bool irreliable = true;
@@ -49,6 +49,9 @@ int reliable_ultra_sonic_reading(int pin_num, int sensorPin) { //done
   while (irreliable){
     for (int i=0;i<5;i++) {
       distance[i] = ultra_sonic(pin_num, sensorPin);
+      
+      }
+      
       int max_dist = find_max(distance);
       int min_dist = find_min(distance);
       int diff = max_dist - min_dist;
@@ -62,7 +65,6 @@ int reliable_ultra_sonic_reading(int pin_num, int sensorPin) { //done
     int ave_distance = sum_distance/5;
     return ave_distance;
     }
-  }
 }
 
 
