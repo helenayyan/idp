@@ -26,45 +26,34 @@ void loop() {
   int victim_num = 0; //number of victims saved
   
   if (state == '1'){
-    delay(2000);
-    through_tunnel(left, right);
     clockwise_90(left,right);  
     int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+    Serial.println("start point to wall max: " + distance);
     anticlockwise_90(left,right);  
-    //75
-    direction_count += 1;
-    //Move towards the wall --- could start searching from this point
-    if (distance < 60){
-      delay(3000);
-      forward(left,right,distance-20);
-      delay(5000);
-      }
-    else {
-      forward(left,right,80);
-      //backward_wall(left, right, some distance) //not sure if needed, need to test the sensor searching area
-      distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin); //check if any victims close to wall
-      if (distance < 100){ // parameter to be adjusted by reading when wall !!!
-        backward_wall(left, right, 3);
-        forward(left, right, distance-20);
-      }
-      else{
-        backward_wall(left, right, 3);
+    //
+    forward(left,right,80);
+    //backward_wall(left, right, some distance) //not sure if needed, need to test the sensor searching area
+    distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin); //check if any victims close to wall
+    Serial.println("middle line to side wall: " + distance);
+
+    backward_wall(left, right, 3);
+    anticlockwise_90(left,right);
+    distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+    Serial.println("Before bypass tunnel: " +distance);
+    forward(left,right,10);
+    Serial.println("After bypass tunnel: " + distance);
+    bool side_search_result = side_search(left,right);
+    if (side_search_result == true) {
+        distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+        Serial.println("Distance when found victim at side: " + distance);
+        forward(left, right, 4);
         anticlockwise_90(left,right);
         direction_count -= 1;
-        forward(left,right,10);
-        bool side_search_result = side_search(left,right);
-        if (side_search_result == true) {
-          distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
-          forward(left, right, 4);
-          anticlockwise_90(left,right);
-          direction_count -= 1;
-          forward(left,right, distance - 27);
-          delay(1000);
-          gripper_up(front);
-          delay(5000);
-        }
+        forward(left,right, distance - 27);
+        delay(1000);
+      }
         else {
-          forward(left, right, 10);
+          forward(left, right, 20);
         }
       }
     }
@@ -160,6 +149,7 @@ void backward_wall(Adafruit_DCMotor *left,Adafruit_DCMotor *right,int distance){
   right->run(RELEASE);
   delay(2000);
 }
+
 void gripper_up(Adafruit_DCMotor *front){
   //to catch victim
   front->run(BACKWARD);
@@ -256,6 +246,7 @@ bool side_search(Adafruit_DCMotor *left, Adafruit_DCMotor *right) {
   int side_distance = reliable_ultra_sonic_reading(side_ultrasonic_pin,side_sensorPin);
   int front_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin,front_sensorPin);
   while (side_distance >= 70 and front_distance >= 5) {
+    Serial.print("Side distance without victim: " +distance);
     left->run(FORWARD);
     right->run(FORWARD);
     left->setSpeed(50);  
