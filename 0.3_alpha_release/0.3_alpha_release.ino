@@ -10,7 +10,7 @@ const int side_ultrasonic_pin = 7;
 const int front_sensorPin = A2;
 const int buttonPin = 3;
 
-const int ledPin =  0;// the number of the LED pin
+const int ledPin =  12;// the number of the LED pin
 
 // Variables will change:
 int ledState = LOW;             // ledState used to set the LED
@@ -27,24 +27,7 @@ void setup()
 }
 
 void loop()
-{   unsigned long currentMillis = millis();
-
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
-
-    // if the LED is off turn it on and vice-versa:
-    if (ledState == LOW) {
-      ledState = HIGH;
-    } else {
-      ledState = LOW;
-    }
-
-    // set the LED with the ledState of the variable:
-    digitalWrite(ledPin, ledState);
-  }
-
-  
+{
   //Initialise motors
   Adafruit_MotorShield AFMS = Adafruit_MotorShield();
   AFMS.begin();
@@ -52,7 +35,9 @@ void loop()
   Adafruit_DCMotor *right = AFMS.getMotor(2);
   Adafruit_DCMotor *front1 = AFMS.getMotor(3);
   Adafruit_DCMotor *front2 = AFMS.getMotor(4);
- 
+  
+  // blink led
+  unsigned long currentMillis = millis();
   
   static int victim_num = 0;  //number of victims saved
 
@@ -97,7 +82,7 @@ void loop()
       anticlockwise_90(left, right);
       direction_count -= 1;
       
-      if (false)
+      if (distance < 80)
       {
         approach_victim(left, right, front1,front2, distance);
         holding_victum = true;
@@ -105,7 +90,7 @@ void loop()
       // No victim along the wall, starting side search
       else
       {
-        forward(left, right, 15);
+        forward(left, right, 10);
         bool side_search_result = side_search_L(left, right);
 
         //If a victim is found
@@ -187,12 +172,9 @@ void loop()
     }
   }
   //find all four victims
-  backward(left, right, 165);
-  anticlockwise_90(left, right);
-  forward_slowly(left, right, 50);
+  backward(left, right, 155);
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(10000);
 }
 
 void through_tunnel(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
@@ -508,19 +490,14 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
   forward(left, right, distance + 20);
   delay(1000);
   //move back to mid line
-  backward(left, right, 102);
+  backward(left, right, 106);
   anticlockwise_90(left, right);  //facing red
 }
 
 void found_victim_L(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1, Adafruit_DCMotor *front2)
 {
   int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
-  if (distance < 65 ){
-    forward_slowly(left, right, 7);
-  }
-  else {
-     forward_slowly(left, right, 9);
-  }
+  forward_slowly(left, right, 5);
   anticlockwise_90(left, right);
   approach_victim(left, right, front1,front2, distance);
 }
@@ -528,12 +505,7 @@ void found_victim_L(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DC
 void found_victim_R(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1,Adafruit_DCMotor *front2)
 {
   int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
-  if (distance < 65 ){
-    backward_slowly(left, right, 7);
-  }
-  else {
-    backward_slowly(left, right, 9);
-  }
+  backward_slowly(left, right, 5);
   anticlockwise_90(left, right);
   approach_victim(left, right, front1,front2, distance);
 }
