@@ -2,14 +2,10 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
-const int front_ultrasonic_pin = 9;
-const int side_ultrasonic_pin = 0;
-const int buttonPin = 3;
 //Shall we let the robot to detect distance right after leaving the tunnel if less than a threshold(distance to wall) no obstacle
 
 void setup() {
   Serial.begin(9600);
-  pinMode(buttonPin, INPUT);
  
 }
 
@@ -29,6 +25,8 @@ double find_distance_encoder_A1(){ //done
     float arc_length = 0.4433; //arc length at radius of wheel in cm (with 72 segments at radius 5.08cm, arc length = 5*(2*pi/72))
 
     int sensorValue = analogRead(encoderPin);  // variable to store the value coming from the sensor
+    Serial.println(sensorValue);
+    Serial.println("----------------------------------");
     if (sensorValue >= th_high and old_value_sensor < th_high) {
         //checks that old_value is below the higher threshold and that the new value is above the threshold, indicating the sensor has gone from black to white
         count_encoder ++;
@@ -48,6 +46,7 @@ double find_distance_encoder_A1(){ //done
     double distance = arc_length * count_encoder;
     Serial.println("------------------------------");
     Serial.println(distance);
+    delay(500);
     
 
     return distance;}

@@ -15,8 +15,8 @@ void setup() {
   
 void loop() {
   
-  //double value1 = ultra_sonic(front_ultrasonic_pin, front_sensorPin);
-  double value1 = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+  double value1 = ultra_sonic(side_ultrasonic_pin, side_sensorPin);
+  //double value1 = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
   Serial.println(value1);
 
 }

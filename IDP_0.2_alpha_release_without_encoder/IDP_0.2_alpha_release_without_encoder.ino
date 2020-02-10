@@ -51,7 +51,6 @@ void loop()
   Adafruit_DCMotor *left = AFMS.getMotor(1);
   Adafruit_DCMotor *right = AFMS.getMotor(2);
   Adafruit_DCMotor *front1 = AFMS.getMotor(3);
-  Adafruit_DCMotor *front2 = AFMS.getMotor(4);
  
   
   static int victim_num = 0;  //number of victims saved
@@ -64,7 +63,7 @@ void loop()
     if (victim_num == 0)
     {
       //Going through tunnel from start point
-      delay(2000);
+      delay(3000);
       through_tunnel(left, right);
       direction_count = 1;
     }
@@ -78,18 +77,39 @@ void loop()
     //Detect whether there is a victim in the front
     clockwise_90(left, right);
     int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+//    forward_victim(left,right,5);
+//    int distance1 = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+//    backward_wall(left,right,10);
+//    int distance2 = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
+//    forward(left,right,5);
     anticlockwise_90(left, right);
+    
+    
 
     //If there is a victim right in front of the tunnel
     if (distance < 60)
-    {
-      approach_victim(left, right, front1,front2, distance);
+    { 
+      approach_victim(left, right, front1, distance);
       holding_victum = true;
     }
-
+//    else if(distance1 < 60)
+//
+//   {
+//      anticlockwise_90(left, right);
+//      forward(left,right,5);
+//      approach_victim(left, right, front1, distance);
+//      holding_victum = true;
+//   }
+//    else if(distance2 < 60)
+//   {
+//    anticlockwise_90(left, right);
+//    backward(left,right,5);
+//    approach_victim(left, right, front1, distance);
+//    holding_victum = true;
+//    }
     //No victim in front of the tunnel start searching left region
     else
-    {
+    { 
       strike_front_wall(left, right);
       
       //ensure no victim close to the wall
@@ -97,9 +117,9 @@ void loop()
       anticlockwise_90(left, right);
       direction_count -= 1;
       
-      if (false)
+      if (distance < 60)
       {
-        approach_victim(left, right, front1,front2, distance);
+        approach_victim(left, right, front1, distance);
         holding_victum = true;
       }
       // No victim along the wall, starting side search
@@ -111,7 +131,7 @@ void loop()
         //If a victim is found
         if (side_search_result == true)
         {
-          found_victim_L(left, right, front1,front2);
+          found_victim_L(left, right, front1);
           direction_count -= 1;
           holding_victum = true;
         }
@@ -130,10 +150,10 @@ void loop()
     //If holding a victum, going back to the red region
     if (holding_victum == true)
     {
-      back_to_red(left, right, front1, front2);
+      back_to_red(left, right, front1);
       victim_num++;
       direction_count = 0;
-      delay(5000);
+      delay(1000);
     }
 
     //If not holding a victim, continue searching right side
@@ -156,7 +176,7 @@ void loop()
       //If a victim is found
       if (side_search_result == true)
       {
-        found_victim_R(left, right, front1,front2);
+        found_victim_R(left, right, front1);
         direction_count -= 1;
         holding_victum = true;
       }
@@ -170,10 +190,10 @@ void loop()
 
       if (holding_victum == true)
       {
-        back_to_red(left, right, front1,front2);
+        back_to_red(left, right, front1);
         victim_num++;
         direction_count = 0;
-        delay(5000);
+        delay(1000);
       }
       else
       {
@@ -181,9 +201,9 @@ void loop()
         forward(left, right, 155);
         anticlockwise_90(left, right);
         forward(left, right, 96);
-        delay(500000);
+        delay(10000);
       }
-    delay(10000);
+    delay(1000);
     }
   }
   //find all four victims
@@ -192,7 +212,7 @@ void loop()
   forward_slowly(left, right, 50);
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(10000);
+  delay(100000);
 }
 
 void through_tunnel(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
@@ -200,13 +220,13 @@ void through_tunnel(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
   //done
   //from starting point - go into tunnel
   //Move to the tunnel entrance
-  forward(left, right, 98);
+  forward(left, right, 103);
 
   //Facing the tunnel
   clockwise_90(left, right);
 
   //Move through tunnel to the mark-up point
-  forward(left, right, 120);
+  forward(left, right, 124);
 }
 
 int ultra_sonic(int pin_num, int sensorPin)
@@ -238,17 +258,34 @@ void forward(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance)
     delay(10);
   }
 
-  wait_time = (distance / 1.8);
+  wait_time = (distance / 1.78);
   left->setSpeed(200);
-  right->setSpeed(197);
+  right->setSpeed(194);
   delay(wait_time *100);
 
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(2000);
+  delay(1000);
 
 }
 
+void forward_victim(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance)
+{
+  float wait_time;
+  int i;
+  left->run(FORWARD);
+  right->run(FORWARD);
+
+  wait_time = (distance / 1.78);
+  left->setSpeed(200);
+  right->setSpeed(193);
+  delay(wait_time *100);
+
+  left->run(RELEASE);
+  right->run(RELEASE);
+  delay(1000);
+
+}
 void forward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance)
 {
   float wait_time;
@@ -262,14 +299,14 @@ void forward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distanc
     delay(10);
   }
 
-  wait_time = (distance / 1.89);
+  wait_time = (distance / 1.7);
   left->setSpeed(52);
-  right->setSpeed(50);
+  right->setSpeed(48);
   delay(wait_time *100);
 
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(2000);
+  delay(1000);
 
 }
 
@@ -289,12 +326,12 @@ void backward(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance)
 
   wait_time = (distance / 1.8);
   left->setSpeed(200);
-  right->setSpeed(197);
+  right->setSpeed(195);
   delay(wait_time *100);
 
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(2000);
+  delay(1000);
 }
 
 void backward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance)
@@ -317,34 +354,35 @@ void backward_slowly(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distan
 
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(2000);
+  delay(1000);
 }
 
-void gripper_down(Adafruit_DCMotor *front1,Adafruit_DCMotor *front2)
-{
+
+
+void gripper_up(Adafruit_DCMotor *front1){
   //to catch victim
   front1->run(BACKWARD);
-  front2->run(BACKWARD);
-  front2->setSpeed(200);
+  //front2->run(BACKWARD);
+//  front2->setSpeed(200);
   front1->setSpeed(200);   
-  delay(1800);
+  delay(2*1600);
   front1->run(RELEASE);
-  front2->run(RELEASE);
-  delay(5000);
-}
+ // front2->run(RELEASE);
+  delay(3000);
+  }
 
-void gripper_up(Adafruit_DCMotor *front1,Adafruit_DCMotor *front2)
-{
- //to release victim
+
+void gripper_down(Adafruit_DCMotor *front1){
+  //to release victim
   front1->run(FORWARD);
-  front2->run(FORWARD);
-  front2->setSpeed(200);
+  //front2->run(FORWARD);
+  //front2->setSpeed(200);
   front1->setSpeed(200);   
-  delay(1800);
+  delay(2*1550);
   front1->run(RELEASE);
-  front2->run(RELEASE);
-  delay(5000);
-}
+  //front2->run(RELEASE);
+  delay(3000);
+  }
 
 void clockwise_90(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
 {
@@ -353,10 +391,10 @@ void clockwise_90(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
   right->run(BACKWARD);
   left->setSpeed(50);
   right->setSpeed(52);
-  delay(7380);
+  delay(7300);
   right->run(RELEASE);
   left->run(RELEASE);
-  delay(2000);
+  delay(1000);
 }
 
 void anticlockwise_90(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
@@ -366,10 +404,10 @@ void anticlockwise_90(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
   right->run(FORWARD);
   left->setSpeed(50);
   right->setSpeed(52);
-  delay(7380);
+  delay(7300);
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(2000);
+  delay(1000);
 }
 
 int find_max(int a[])
@@ -445,7 +483,7 @@ bool side_search_L(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
     left->run(FORWARD);
     right->run(FORWARD);
     left->setSpeed(50);
-    right->setSpeed(48);
+    right->setSpeed(46);
     side_distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
     front_distance = reliable_ultra_sonic_reading(front_ultrasonic_pin, front_sensorPin);
   }
@@ -508,34 +546,34 @@ void back_to_mark_point(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int dir
   forward(left, right, distance + 20);
   delay(1000);
   //move back to mid line
-  backward(left, right, 102);
+  backward(left, right, 105);
   anticlockwise_90(left, right);  //facing red
 }
 
-void found_victim_L(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1, Adafruit_DCMotor *front2)
+void found_victim_L(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1)
 {
   int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
   if (distance < 65 ){
-    forward_slowly(left, right, 7);
+    forward_victim(left, right, 5);
   }
   else {
-     forward_slowly(left, right, 9);
+     forward_victim(left, right, 7);
   }
   anticlockwise_90(left, right);
-  approach_victim(left, right, front1,front2, distance);
+  approach_victim(left, right, front1, distance);
 }
 
-void found_victim_R(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1,Adafruit_DCMotor *front2)
+void found_victim_R(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1)
 {
   int distance = reliable_ultra_sonic_reading(side_ultrasonic_pin, side_sensorPin);
   if (distance < 65 ){
-    backward_slowly(left, right, 7);
+    forward_victim(left, right, 5);
   }
   else {
-    backward_slowly(left, right, 9);
+     forward_victim(left, right, 7);
   }
   anticlockwise_90(left, right);
-  approach_victim(left, right, front1,front2, distance);
+  approach_victim(left, right, front1, distance);
 }
 
 void backward_wall(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance)
@@ -552,7 +590,7 @@ void backward_wall(Adafruit_DCMotor *left, Adafruit_DCMotor *right, int distance
 
   left->run(RELEASE);
   right->run(RELEASE);
-  delay(2000);
+  delay(1000);
 }
 
 void red_to_tunnel(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
@@ -563,23 +601,23 @@ void red_to_tunnel(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
   forward(left, right, 98);
 }
 
-void approach_victim (Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1,Adafruit_DCMotor *front2, int distance)
+void approach_victim (Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1, int distance)
 {
   //move toward victim when facing it and upload victim
   delay(1000);
-  forward(left, right, distance-12);
+  forward(left, right, distance-11);
   delay(1000);
-  gripper_down(front1,front2);
+  gripper_down(front1);
   delay(1000);
 }
 
-void back_to_red(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1,Adafruit_DCMotor *front2)
+void back_to_red(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1)
 {
   //after back to mark point, to drop victim to red zone
-  forward(left, right, 155);
+  forward(left, right, 165);
   clockwise_90(left, right);
   forward(left, right, 60);
-  gripper_up(front1,front2);
+  gripper_up(front1);
 }
 
 void strike_front_wall(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
