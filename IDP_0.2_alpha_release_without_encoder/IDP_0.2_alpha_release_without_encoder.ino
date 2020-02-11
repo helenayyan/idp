@@ -8,7 +8,7 @@ const int front_ultrasonic_pin = 6;
 const int side_sensorPin = A3;
 const int side_ultrasonic_pin = 7;
 const int front_sensorPin = A2;
-
+const int BlinkLed = 5; //pin for blinking led
 
 const int ledPin =  0;// the number of the LED pin
 
@@ -17,12 +17,11 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
+  pinMode(BlinkLed, OUTPUT);
 }
 
 void loop()
 {   
-
-  
   //Initialise motors
   Adafruit_MotorShield AFMS = Adafruit_MotorShield();
   AFMS.begin();
@@ -30,7 +29,7 @@ void loop()
   Adafruit_DCMotor *right = AFMS.getMotor(2);
   Adafruit_DCMotor *front1 = AFMS.getMotor(3);
  
-  
+  digitalWrite(BlinkLed, HIGH); //hold blinking led high
   static int victim_num = 0;  //number of victims saved
 
   while (victim_num < 1)
@@ -587,7 +586,7 @@ void approach_victim(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_D
   delay(1000);
   
   digitalWrite(ledPin, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);                       // wait for a second
+  delay(1000);                  // wait for a second
   digitalWrite(ledPin, LOW);    // turn the LED off by making the voltage LOW
 
   gripper_down(front1);
