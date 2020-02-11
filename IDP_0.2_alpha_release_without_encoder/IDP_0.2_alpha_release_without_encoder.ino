@@ -8,41 +8,19 @@ const int front_ultrasonic_pin = 6;
 const int side_sensorPin = A3;
 const int side_ultrasonic_pin = 7;
 const int front_sensorPin = A2;
-const int buttonPin = 3;
+
 
 const int ledPin =  0;// the number of the LED pin
 
-// Variables will change:
-int ledState = LOW;             // ledState used to set the LED
-unsigned long previousMillis = 0;        // will store last time LED was updated
-
-// constants won't change:
-const long interval = 1000;
 
 void setup()
 {
   Serial.begin(9600);
-  pinMode(buttonPin, INPUT);
   pinMode(ledPin, OUTPUT);
 }
 
 void loop()
-{   unsigned long currentMillis = millis();
-
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
-
-    // if the LED is off turn it on and vice-versa:
-    if (ledState == LOW) {
-      ledState = HIGH;
-    } else {
-      ledState = LOW;
-    }
-
-    // set the LED with the ledState of the variable:
-    digitalWrite(ledPin, ledState);
-  }
+{   
 
   
   //Initialise motors
@@ -601,12 +579,17 @@ void red_to_tunnel(Adafruit_DCMotor *left, Adafruit_DCMotor *right)
   forward(left, right, 98);
 }
 
-void approach_victim (Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1, int distance)
+void approach_victim(Adafruit_DCMotor *left, Adafruit_DCMotor *right, Adafruit_DCMotor *front1, int distance)
 {
   //move toward victim when facing it and upload victim
   delay(1000);
   forward(left, right, distance-11);
   delay(1000);
+  
+  digitalWrite(ledPin, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);                       // wait for a second
+  digitalWrite(ledPin, LOW);    // turn the LED off by making the voltage LOW
+
   gripper_down(front1);
   delay(1000);
 }
