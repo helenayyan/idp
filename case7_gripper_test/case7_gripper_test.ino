@@ -18,20 +18,21 @@ void loop() {
 }
 
 
-void gripper_up(Adafruit_DCMotor *front1){
-  //to catch victim
+void gripper_down(Adafruit_DCMotor *front1){
+  //to release victim
   front1->run(FORWARD);
-  //front2->run(BACKWARD);
-//  front2->setSpeed(200);
   front1->setSpeed(200);   
-  delay(2*1600);
+  delay(2*1550);
   front1->run(RELEASE);
- // front2->run(RELEASE);
-  delay(5000);
+  delay(1000);
+  front1->run(FORWARD);
+  front1->setSpeed(200);
+  delay(2*200);
+  front1->run(RELEASE);
+  delay(1000);
   }
 
-
-void gripper_down(Adafruit_DCMotor *front1){
+void gripper_up(Adafruit_DCMotor *front1){
   //to release victim
   front1->run(BACKWARD);
   //front2->run(FORWARD);
